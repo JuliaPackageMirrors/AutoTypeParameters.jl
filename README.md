@@ -21,7 +21,7 @@ The core functions are:
 1. Under development and incomplete.  A particularly big gap is a lack of
    support for arrays.
 
-1. Most "normal" uses of Julia should not require this library.  Most likely,
+1. "Normal" uses of Julia should not require this library.  Most likely,
    unless you an something of an expert Julia user, you should not need this.
 
 1. Neither `freeze()` nor `thaw()` are efficient.
