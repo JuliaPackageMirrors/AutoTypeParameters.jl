@@ -101,7 +101,7 @@ end
 # extract symbols - the structure has two levels with different rules (the
 # meaning of an empty tuple switches betwene levels).
 
-# NOTE - symbols is muatted in the code below
+# NOTE - `symbols` is mutated in the code below
 
 EMPTY = ()
 
@@ -123,7 +123,6 @@ end
 
 extract2(t::Tuple, symbols) = map(x -> extract1(x, symbols), t)
 
-extract(x) = x
 
 function extract(t::Tuple)
     symbols = Symbol[]
@@ -149,7 +148,6 @@ end
 
 insert2(t::Tuple, symbols) = map(x -> insert1(x, symbols), t)
 
-insert(x) = x
 
 function insert(t::Tuple)
     symbols = reverse(Symbol[t[2:end]...])

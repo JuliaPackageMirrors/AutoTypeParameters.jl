@@ -4,8 +4,7 @@ using AutoTypeParameters: extract, insert, freeze, thaw
 using Base.Test
 
 
-for (mixed, separate) in [(1, 1),
-                          ((:a, (), (1, 2)), (((), (), (1, 2)), :a)),
+for (mixed, separate) in [((:a, (), (1, 2)), (((), (), (1, 2)), :a)),
                           ((:a, (), (:p, :q)), (((), (), ((), ())), :a, :p, :q))]
 
     println("$mixed -> $(extract(mixed))")
