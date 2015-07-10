@@ -25,3 +25,5 @@ The core functions are:
    unless you an something of an expert Julia user, you should not need this.
 
 1. Neither `freeze()` nor `thaw()` are efficient.
+
+1. The encoded value is rather long and hard to read.
