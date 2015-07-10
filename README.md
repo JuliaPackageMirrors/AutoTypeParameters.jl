@@ -6,7 +6,7 @@
 A Julia library to encode "any" value so that it can be used as a type
 parameter.
 
-The two core functions are:
+The core functions are:
 
 * `freeze(x)` which returns an encoding of `x` suitable for use as a type
   parameter.
