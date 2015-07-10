@@ -3,15 +3,15 @@
 
 # AutoTypeParameters
 
-A Julia library to encode "any" value so that it can be used as a type
-parameter.
+A Julia library to reversibly encode "any" value so that it can be used as a
+type parameter.
 
 The core functions are:
 
 * `freeze(x)` which returns an encoding of `x` suitable for use as a type
   parameter.
 
-* `thaw(eval, x)` which deocdes a type parameter `x`.  The `eval` function
+* `thaw(eval, x)` which decodes a type parameter `x`.  The `eval` function
   should be from module where encoding occurred (or, at least, contain
   bindings for any symbols required during decoding - eg. names of types that
   occur inside `x`).
