@@ -87,6 +87,8 @@ function freeze_{S<:AbstractString}(s::S; test=valid_type_parameter)
     tuple(:string, (), (symbol(s),))
 end
 
+# TODO - more freeze_() definitions for different types here...
+
 function freeze(x; test=valid_type_parameter)
     if test(x) && !tagged(x)
         x

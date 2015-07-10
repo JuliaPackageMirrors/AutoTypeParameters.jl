@@ -19,7 +19,7 @@ The core functions are:
 
 ## Warnings
 
-1. Under development and incomplete.  A particularly big gap is a lack of
+1. Under development and incomplete.  A particularly big gap is the lack of
    support for arrays.
 
 1. "Normal" uses of Julia should not require this library.  Most likely, you
