@@ -19,8 +19,8 @@ export freeze, thaw, TAG
 #
 # inversion then requires that these symbols are re-inserted.
 #
-# finally, we use the raw value if possible, since it's much more readable,
-# and a TAG to indicate that the value is encoded.
+# finally, we use the raw value if possible, since it's much more readable; if
+# we hve to encode, thet we add a TAG prefix to make that clear.
 
 TAG = :ATP
 
