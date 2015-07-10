@@ -14,7 +14,7 @@ export freeze, thaw, TAG
 # HOWEVER, the above does not work, because symbols can only be at the first
 # level of nesting.  so once we have the tree as described above we extract
 # all the symbols, replacing them with empty tuples, and append them to the
-# tuple at the "root" (there's no confusion empty t and v values above,
+# tuple at the "root" (there's no confusion with empty t and v values above,
 # because of the regularity of the structure).
 #
 # inversion then requires that these symbols are re-inserted.
