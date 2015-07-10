@@ -32,8 +32,8 @@ end
 for (value, param) in [(1, 1),
                        (Int64, Int64),
                        ((1, 2, 3), (1, 2, 3)),
-                       (Type1(1, 2), (:ATP, ((),(),(1,2)),:Type1)),
-                       ("abc", (:ATP, ((),(),((),)),:string,:abc))]
+                       (Type1(1, 2), (:ATP,((),(),(1,2)),:Type1)),
+                       ("abc", (:ATP,((),(),((),)),:string,:abc))]
 
     println("$(value) -> $(freeze(value))")
 
