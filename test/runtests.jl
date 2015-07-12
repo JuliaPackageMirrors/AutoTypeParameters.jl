@@ -31,18 +31,19 @@ end
 for (value, param) in [(1, 1),
                        (Int64, Int64),
                        ((1, 2, 3), (1, 2, 3)),
-                       (Type1(1, 2), (:ATP,((),(),(1,2)),:Type1)),
-                       ("abc", (:ATP,((),(),((),)),:string,:abc))]
+                       (Type1(1, 2), (:ATP,((),((),()),(1,2)),:Type1,:Any,:Any)),
+                       ("abc", (:ATP,((),(),((),)),:string,:abc)),
+                       ([1,2], (:ATP,((),((),),(1,2)),:Vector,:Int64))]
 
     println("$(value) -> $(freeze(value))")
+
+    # we can invert things correctly
+    @test thaw(eval, freeze(value)) == value
 
     # we get what we expect
     @test freeze(value) == param
 
     # what we get is a valid type parameter
     @test Val{freeze(value)} == Val{param}
-
-    # we can invert things correctly
-    @test thaw(eval, freeze(value)) == value
 
 end

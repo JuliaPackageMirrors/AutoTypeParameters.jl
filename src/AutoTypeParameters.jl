@@ -46,16 +46,22 @@ escape(x::Symbol) = QuoteNode(x)
 
 
 function thaw_(eval, t::Tuple)
-    if length(t[2]) > 0
-        head = t[1]
-        params = map(x -> thaw_(eval, x), t[2])
-        args = map(x -> thaw_(eval, x), t[3])
-        eval(Expr(:call, Expr(:curly, head, params...),  args...))
-    else
-        head = t[1]
-        args = map(x -> escape(thaw_(eval, x)), t[3])
-        eval(Expr(:call, head, args...))
+    head = t[1]
+    args = map(x -> escape(thaw_(eval, x)), t[3])
+    # need to special case arrays
+    if t[1] == :Vector
+        args = (Expr(:vect, args...),)
     end
+    if length(t[2]) > 0
+        # attempt this, but it may fail if the dtype was declared without
+        params = map(x -> escape(thaw_(eval, x)), t[2])
+        try
+            return eval(Expr(:call, Expr(:curly, head, params...),  args...))
+        catch
+            # fall through to ignoring type parameters
+        end
+    end
+    eval(Expr(:call, head, args...))
 end
 
 function thaw(eval, x)
@@ -68,23 +74,34 @@ end
 
 
 function freeze_(x; test=valid_type_parameter)
-    if test(x)
+    if test((x,))   # test inside parens
         x
+    elseif isbits(x) || x == Any
+        symbol(x)
     else
         typ = typeof(x)
+        types = typ.types
         names = tuple(fieldnames(typ)...)
-        (symbol(typ), (), map(n -> freeze_(getfield(x, n); test=test), names))
+        (symbol(typ), (map(x -> freeze_(x; test=test), types)...), map(n -> freeze_(getfield(x, n); test=test), names))
     end
 end
-        
+
+# tuples require a tuple argument and don't have named components
+# TODO - this isn't tested and looks wrong
 function freeze_{T<:Tuple}(t::T; test=valid_type_parameter)
-    tuple(:tuple, (), map(x -> freeze_(x; test=test), t))
+    tuple(:tuple, (map(x -> freeze_(x; test=test), T.types)...), map(x -> freeze_(x; test=test), t))
 end
 
 # this isn't right, but ASCIIString(Symbol) fails
 # may be able to improve once have arrays?
 function freeze_{S<:AbstractString}(s::S; test=valid_type_parameter)
     tuple(:string, (), (symbol(s),))
+end
+
+# arrays don't return anything via types, don't have named components, and
+# take an array (not tuple) as argument, so we also need to special case thaw.
+function freeze_{T}(v::Vector{T}; test=valid_type_parameter)
+    tuple(:Vector, (freeze_(T; test=test),), map(x -> freeze_(x; test=test), (v...)))
 end
 
 # TODO - more freeze_() definitions for different types here...
