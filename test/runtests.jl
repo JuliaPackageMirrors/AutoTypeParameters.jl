@@ -1,21 +1,7 @@
 
-using AutoTypeParameters: extract, insert, freeze, thaw
+using AutoTypeParameters: freeze, thaw
 
 using Base.Test
-
-
-for (mixed, separate) in [((:a, (), (1, 2)), (((), (), (1, 2)), :a)),
-                          ((:a, (), (:p, :q)), (((), (), ((), ())), :a, :p, :q))]
-
-    println("$mixed -> $(extract(mixed))")
-
-    @test extract(mixed) == separate
-
-    @test Val{extract(mixed)} == Val{separate}
-
-    @test insert(extract(mixed)) == mixed
-
-end
 
 
 immutable Type1
@@ -31,9 +17,10 @@ end
 for (value, param) in [(1, 1),
                        (Int64, Int64),
                        ((1, 2, 3), (1, 2, 3)),
-                       (Type1(1, 2), (:ATP,((),((),()),(1,2)),:Type1,:Any,:Any)),
-                       ("abc", (:ATP,((),(),((),)),:string,:abc)),
-                       ([1,2], (:ATP,((),((),),(1,2)),:Vector,:Int64))]
+                       (Type1(1, 2), (:ATP,((),(),1,2),:call,:Type1)),
+                       ("abc", (:ATP,((),(),((),0x61,0x62,0x63)),:call,:ASCIIString,:vect)),
+                       ([1,2], (:ATP,((),1,2),:vect)),
+                       ((1, ("two", 3.0)), (:ATP,((),1,((),((),(),((),0x74,0x77,0x6f)),3.0)),:tuple,:tuple,:call,:ASCIIString,:vect))]
 
     println("$(value) -> $(freeze(value))")
 

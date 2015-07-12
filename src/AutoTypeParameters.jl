@@ -1,8 +1,79 @@
 
 module AutoTypeParameters
 
-export freeze, thaw, TAG
+export freeze, thaw
 
+
+TAG = :ATP
+
+function value_to_expr(x)
+    buf = IOBuffer()
+    showall(buf, x)
+    parse(UTF8String(buf.data))
+end
+
+expand_str(x) = x
+expand_str(x::Expr) = Expr(x.head, map(expand_str, x.args)...)
+expand_str(x::AbstractString) = Expr(:call, symbol(typeof(x)), Expr(:vect, map(Uint8, collect(bytestring(x)))...))
+
+expr_to_sexpr(x) = x
+expr_to_sexpr(x::Expr) = (x.head, map(expr_to_sexpr, x.args)...)
+
+extract(x, symbols) = x
+extract(x::Symbol, symbols) = (push!(symbols, x); ())
+extract(x::Tuple, symbols) = map(y -> extract(y, symbols), x)
+
+function extract_symbols(x)
+    symbols = Symbol[]
+    x = extract(x, symbols)
+    (TAG, x, symbols...)
+end
+
+function freeze(x) 
+    if typeof(x) != Tuple || x[1] != TAG
+        try
+            Val{x}
+            return x
+        catch TypeError
+            # fall through to encoding
+        end
+    end
+    extract_symbols(expr_to_sexpr(expand_str(value_to_expr(x))))
+end
+
+
+sexpr_to_expr(x) = x
+sexpr_to_expr(x::Tuple) = Expr(x[1], map(sexpr_to_expr, x[2:end])...)
+
+insert(x, symbols) = x
+insert(x::Tuple, symbols) = length(x) == 0 ? pop!(symbols) : map(y -> insert(y, symbols), x)
+
+insert_symbols(x) = insert(x[2], reverse(Symbol[x[3:end]...]))
+
+function thaw(eval, x)
+    println("$x, $(typeof(x) <: Tuple), $(x[1] == TAG)")
+    if typeof(x) <: Tuple && x[1] == TAG
+        a = insert_symbols(x)
+        println(a)
+        b = sexpr_to_expr(a)
+        dump(b)
+        eval(b)
+    else
+        x
+    end
+end
+
+
+
+
+
+
+# this (based on introspection) really didn't work well.  there are lots of
+# inconsistencies.  and it's hard to tell when a type is described completely.
+
+# i should write a blog post on how crappy it all is at some point.
+
+if false
 
 # we encode everything as either:
 # - a value
@@ -48,9 +119,11 @@ escape(x::Symbol) = QuoteNode(x)
 function thaw_(eval, t::Tuple)
     head = t[1]
     args = map(x -> escape(thaw_(eval, x)), t[3])
-    # need to special case arrays
-    if t[1] == :Vector
+    # need to special case arrays and tuples
+    if head == :Vector
         args = (Expr(:vect, args...),)
+    elseif head == :Tuple
+        args = (Expr(:tuple, args...),)
     end
     if length(t[2]) > 0
         # attempt this, but it may fail if the dtype was declared without
@@ -74,6 +147,7 @@ end
 
 
 function freeze_(x; test=valid_type_parameter)
+    println(x)
     if test((x,))   # test inside parens
         x
     elseif isbits(x) || x == Any
@@ -89,6 +163,8 @@ end
 # tuples require a tuple argument and don't have named components
 # TODO - this isn't tested and looks wrong
 function freeze_{T<:Tuple}(t::T; test=valid_type_parameter)
+    println("tuple: $t")
+    map(x -> println("type: $(typeof(x)) $(typeof(x) <: Tuple)"), t)
     tuple(:tuple, (map(x -> freeze_(x; test=test), T.types)...), map(x -> freeze_(x; test=test), t))
 end
 
@@ -107,6 +183,7 @@ end
 # TODO - more freeze_() definitions for different types here...
 
 function freeze(x; test=valid_type_parameter)
+    println("---- $x")
     if test(x) && !tagged(x)
         x
     else
@@ -171,5 +248,6 @@ function insert(t::Tuple)
     insert1(t[1], symbols)
 end
 
+end
 
 end
