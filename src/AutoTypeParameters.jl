@@ -6,6 +6,40 @@ export freeze, thaw
 
 TAG = :ATP
 
+function freeze(x) 
+    if !(typeof(x) <: Tuple && x[1] == TAG)
+        try
+            Val{x}
+            return x
+        catch TypeError
+            # fall through to encoding
+        end
+    end
+    buf = IOBuffer()
+    showall(buf, x)
+    (TAG, symbol(buf.data))
+end
+
+function thaw(eval, x)
+    if typeof(x) <: Tuple && x[1] == TAG
+        eval(parse(string(x[2])))
+    else
+        x
+    end
+end
+
+
+
+
+
+
+
+
+
+# this worked but is a lot of fuss when we can just store the symbol
+
+if false
+
 function value_to_expr(x)
     buf = IOBuffer()
     showall(buf, x)
@@ -63,7 +97,7 @@ function thaw(eval, x)
     end
 end
 
-
+end
 
 
 
