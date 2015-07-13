@@ -40,7 +40,7 @@ It seems like cheating, right?
 Explaining why it works this way needs a little history.
 
 Originally, this package had some quite complex code that used introspection
-to create and expression that evaluated to give the value being encoded.  That
+to create an expression that evaluated to give the value being encoded.  That
 expression was then encoded in nested tuples, with low-level values and
 symbols.
 
