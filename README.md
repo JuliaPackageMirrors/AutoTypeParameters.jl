@@ -19,8 +19,8 @@ when you try to create a "complicated" depedent type.
 That error is (partly) explained
 [here](https://groups.google.com/forum/#!topic/julia-users/Ihl50vgSQxw) - it
 occurs because the kinds of things that can be types in Julia is limited.
-Partly for sensible reasons (you don't want a mutable type), but also partly
-because of apparently arbitrary implementation details.
+Partly for sensible reasons (you don't want a mutable type), but also because
+of arbitrary implementation details.
 
 ## What Does It Do?
 
@@ -37,7 +37,7 @@ into a "real" value.
 
 It seems like cheating, right?
 
-Answering that requies a little history.
+Explaining why it works this way needs a little history.
 
 Originally, this package had some quite complex code that used introspection
 to create and expression that evaluated to give the value being encoded.  That
