@@ -6,23 +6,101 @@ export freeze, thaw
 
 TAG = :ATP
 
-function freeze(x) 
-    if !(typeof(x) <: Tuple && x[1] == TAG)
-        try
-            Val{x}
-            return x
-        catch TypeError
-            # fall through to encoding
-        end
+function valid(x)
+    try
+        Val{x}
+        true
+    catch
+        false
     end
-    buf = IOBuffer()
-    showall(buf, x)
-    (TAG, symbol(buf.data))
+end
+
+
+
+if false
+
+function freeze(x) 
+    if !(typeof(x) <: Tuple && x[1] == TAG) && valid(x)
+        x
+    else
+        buf = IOBuffer()
+        showall(buf, x)
+        (TAG, symbol(buf.data))
+    end
 end
 
 function thaw(eval, x)
     if typeof(x) <: Tuple && x[1] == TAG
         eval(parse(string(x[2])))
+    else
+        x
+    end
+end
+
+end
+
+
+
+# ok, let's try the introspection approach again, but this time go via Expr
+
+function value_to_expr(x)
+    if valid((x,))
+        x
+    else
+        Expr(:call, value_to_expr(typeof(x)), 
+             map(n -> value_to_expr(getfield(x, n)), fieldnames(x))...)
+    end
+end
+
+function value_to_expr(x::DataType)
+    types = x.types
+    if length(types) > 0
+        Expr(:curly, symbol(x), map(value_to_expr, types)...)
+    else
+        symbol(x)
+    end
+end
+
+
+value_to_expr(x::AbstractString) = Expr(:call, symbol(typeof(x)), 
+                                        Expr(:vect, map(Uint8, collect(bytestring(x)))...))
+
+value_to_expr(x::Vector) = Expr(:call, value_to_expr(typeof(x)), 
+                                map(value_to_expr, x)...)
+
+expr_to_sexpr(x) = x
+expr_to_sexpr(x::Expr) = (x.head, map(expr_to_sexpr, x.args)...)
+
+extract(x, symbols) = x
+extract(x::Symbol, symbols) = (push!(symbols, x); ())
+extract(x::Tuple, symbols) = map(y -> extract(y, symbols), x)
+
+function extract_symbols(x)
+    symbols = Symbol[]
+    x = extract(x, symbols)
+    (TAG, x, symbols...)
+end
+
+function freeze(x) 
+    if !(typeof(x) <: Tuple && x[1] == TAG) && valid(x)
+        x
+    else
+        extract_symbols(expr_to_sexpr(value_to_expr(x)))
+    end
+end
+
+
+sexpr_to_expr(x) = x
+sexpr_to_expr(x::Tuple) = Expr(x[1], map(sexpr_to_expr, x[2:end])...)
+
+insert(x, symbols) = x
+insert(x::Tuple, symbols) = length(x) == 0 ? pop!(symbols) : map(y -> insert(y, symbols), x)
+
+insert_symbols(x) = insert(x[2], reverse(Symbol[x[3:end]...]))
+
+function thaw(eval, x)
+    if typeof(x) <: Tuple && x[1] == TAG
+        eval(sexpr_to_expr(insert_symbols(x)))
     else
         x
     end
@@ -85,13 +163,8 @@ insert(x::Tuple, symbols) = length(x) == 0 ? pop!(symbols) : map(y -> insert(y, 
 insert_symbols(x) = insert(x[2], reverse(Symbol[x[3:end]...]))
 
 function thaw(eval, x)
-    println("$x, $(typeof(x) <: Tuple), $(x[1] == TAG)")
     if typeof(x) <: Tuple && x[1] == TAG
-        a = insert_symbols(x)
-        println(a)
-        b = sexpr_to_expr(a)
-        dump(b)
-        eval(b)
+        eval(sexpr_to_expr(insert_symbols(x)))
     else
         x
     end
