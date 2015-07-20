@@ -2,6 +2,7 @@
 using AutoTypeParameters: freeze, thaw
 
 using Base.Test
+using AutoHashEquals
 
 
 immutable Type1
@@ -9,7 +10,7 @@ immutable Type1
     b
 end
 
-immutable Type2{A,B}
+@auto_hash_equals immutable Type2{A,B}
     a::A
     b::B
 end
@@ -18,46 +19,28 @@ end
 for (value, param) in [(1, 1),
                        (Int64, Int64),
                        ((1, 2, 3), (1, 2, 3)),
-                       (Type1(1, 2), (:ATP,((),(),1,2),:call,:Type1)),
-                       ("abc", (:ATP,((),(),((),0x61,0x62,0x63)),:call,:ASCIIString,:vect)),
-                       ([1,2], (:ATP,symbol("[1,2]"))),
-                       ((1, ("two", 3.0)), (:ATP,symbol("(1,(\"two\",3.0))")))]
+                       (Type1(1, 2), symbol("ATP Type1(1,2)")),
+                       ("abc", symbol("ATP \"abc\"")),
+                       ([1,2], symbol("ATP [1,2]")),
+                       ((1, ("two", 3.0)), symbol("ATP (1,(\"two\",3.0))")),
+                       (Type2{String,Int}("a", 1), symbol("ATP Type2{AbstractString,Int64}(\"a\",1)"))]
 
-    println("$(value) -> $(freeze(value))")
+    for format in (:show, :serialize)
 
-    # we can invert things correctly
-    @test thaw(eval, freeze(value)) == value
+        println("$(format): $(value) -> $(freeze(value; format=format))")
 
-    # we get what we expect
-    @test freeze(value) == param
+        # we can invert things correctly
+        @test thaw(eval, freeze(value; format=format)) == value
+        
+        # what we get is a valid type parameter
+        @test Val{freeze(value)} == Val{param}
 
-    # what we get is a valid type parameter
-    @test Val{freeze(value)} == Val{param}
-
+        if format == :show
+            # we get what we expect
+            @test freeze(value) == param
+        end
+        
+    end
+    
 end
 
-
-if false
-
-for (value, param) in [(1, 1),
-                       (Int64, Int64),
-                       ((1, 2, 3), (1, 2, 3)),
-                       (Type1(1, 2), (:ATP, symbol("Type1(1,2)"))),
-                       ("abc", (:ATP,symbol("\"abc\""))),
-                       ([1,2], (:ATP,symbol("[1,2]"))),
-                       ((1, ("two", 3.0)), (:ATP,symbol("(1,(\"two\",3.0))")))]
-
-    println("$(value) -> $(freeze(value))")
-
-    # we can invert things correctly
-    @test thaw(eval, freeze(value)) == value
-
-    # we get what we expect
-    @test freeze(value) == param
-
-    # what we get is a valid type parameter
-    @test Val{freeze(value)} == Val{param}
-
-end
-
-end
