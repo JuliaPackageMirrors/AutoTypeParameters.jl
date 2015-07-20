@@ -1,4 +1,6 @@
 
+# TODO - isa instead of typeof() <:
+
 module AutoTypeParameters
 
 export freeze, thaw
