@@ -1,6 +1,8 @@
 
 module AutoTypeParameters
 
+using Compat
+
 export freeze, thaw
 
 
@@ -11,19 +13,19 @@ const SERIALIZE_PREFIX = "="
 
 function valid(x)
     try
-        Val{x}
+        @compat Val{x}
         true
     catch
         false
     end
 end
 
-function starts_with(s::AbstractString, p)
+@compat function starts_with(s::AbstractString, p)
     length(s) >= length(p) && s[1:length(p)] == p
 end
 starts_with(s, p) = starts_with(string(s), p)
 
-drop(s::AbstractString, p) = s[length(p)+1:end]
+@compat drop(s::AbstractString, p) = s[length(p)+1:end]
 
 function freeze_show(x)
     buf = IOBuffer()
@@ -33,17 +35,25 @@ function freeze_show(x)
     symbol(buf.data)
 end
 
-function thaw_show(eval, x::AbstractString)
+@compat function thaw_show(eval, x::AbstractString)
     eval(parse(x))
 end
 
+function notv3()
+    if VERSION < v"0.4-"
+        error("Serialization (base64) not supported in v0.3")
+    end
+end
+
 function freeze_serialize(x)
+    notv3()
     buf = IOBuffer()
     serialize(buf, x)
     symbol(string(ATP_PREFIX, SERIALIZE_PREFIX, base64encode(buf.data)))
 end
 
-function thaw_serialize(eval, x::AbstractString)
+@compat function thaw_serialize(eval, x::AbstractString)
+    notv3()
     deserialize(IOBuffer(base64decode(x)))
 end
  
