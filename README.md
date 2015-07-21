@@ -61,7 +61,7 @@ julia> thaw(eval, symbol("ATP=JhWGYSBzdHJpbmc="))
 "a string"
 ```
 
-The downside of this approach is that serilization may change between
+The downside of this approach is that serialization may change between
 runs, so these values cannot appear literally in your code.
 
 ## Warnings
