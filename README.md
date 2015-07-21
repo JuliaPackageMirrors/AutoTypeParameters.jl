@@ -25,7 +25,7 @@ of arbitrary implementation details.
 ## What Does It Do?
 
 This package has two functions - `freeze()` and `thaw()` - that translate
-arbitrary values back and forth into a form that *is* accepeted by Julia.
+arbitrary values back and forth into a form that *is* accepted by Julia.
 
 ## How Does It Work?
 
