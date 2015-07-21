@@ -54,9 +54,6 @@ An alternative, which is more reliable, but less readable, is to use
 `format`:
 
 ```julia
-julia> thaw(eval, symbol("ATP \"a string\""))
-"a string"
-
 julia> freeze("a string"; format=:serialize)
 symbol("ATP=JhWGYSBzdHJpbmc=")
 
