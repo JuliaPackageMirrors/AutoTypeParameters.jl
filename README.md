@@ -61,10 +61,13 @@ julia> thaw(eval, symbol("ATP=JhWGYSBzdHJpbmc="))
 "a string"
 ```
 
-## Warning
+## Warnings
 
-Because this package uses `eval()` it should not be passed arbitrary values
-from an untrusted user.
+* Because this package uses `eval()` it should not be passed arbitrary values
+  from an untrusted user.
+
+* The output from serialize and deserialize can change between runs.  So the
+  literal encoded values should not be explicit in your code.
 
 ## Example
 
