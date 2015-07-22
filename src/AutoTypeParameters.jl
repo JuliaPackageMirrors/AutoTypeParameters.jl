@@ -65,7 +65,7 @@ function freeze(x; format=:show)
     elseif format == :serialize
         freeze_serialize(x)
     else
-        error("Unexpected format: $(format)")
+        error("Unexpected format for freeze: $(format)")
     end
 end
 
@@ -79,7 +79,7 @@ function thaw(eval, x)
         elseif starts_with(s, SHOW_PREFIX)
             thaw_show(eval, drop(s, SHOW_PREFIX))
         else
-            error("Unexpected format: $x")
+            error("Unexpected format for thaw: $x")
         end
     end
 end
