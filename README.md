@@ -29,9 +29,12 @@ arbitrary values back and forth into a form that *is* accepted by Julia.
 
 ## How Does It Work?
 
-It's all very simple.  The `freeze()` function takes the output from
-`showall()` and converts it into a Symbol, while `thaw()` uses `eval()` to
-convert it back into a "real" value:
+You can choose between two encondings.
+
+### Using showall()
+
+By default, `freeze()` takes the output from `showall()` and converts it into
+a Symbol, while `thaw()` uses `eval()` to convert it back into a "real" value:
 
 ```julia
 julia> using AutoTypeParameters
@@ -43,26 +46,24 @@ julia> thaw(eval, symbol("ATP \"a string\""))
 "a string"
 ```
 
-## Isn't There A Better Way?
+The advantage of the default approach is that the type parameter is readable.
+The disadvantage, of course, is that it requires `showall()` to generate
+output that `eval()` can handle.
 
-Well, the advantage of the default approach is that the type parameter is
-readable.  The disadvantage, of course, is that it requires `showall()` to
-generate output that `eval()` can handle.
+### Using serialize()
 
-An alternative, which is more reliable, but less readable, is to use
-`serialize()` and `deserialize()`.  You can select this with the keyword
-`format`:
+Alternatively (eg for values which do not have a useful `showall()` function),
+the base64 encoded output from `serialize()` can be used:
 
 ```julia
+julia> using AutoTypeParameters
+
 julia> freeze("a string"; format=:serialize)
 symbol("ATP=JhWGYSBzdHJpbmc=")
 
 julia> thaw(eval, symbol("ATP=JhWGYSBzdHJpbmc="))
 "a string"
 ```
-
-The downside of this approach is that serialization may change between
-runs, so these values cannot appear literally in your code.
 
 ## Warnings
 
