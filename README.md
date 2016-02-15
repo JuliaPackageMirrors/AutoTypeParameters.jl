@@ -1,4 +1,9 @@
 [![Build Status](https://travis-ci.org/andrewcooke/AutoTypeParameters.jl.svg?branch=master)](https://travis-ci.org/andrewcooke/AutoTypeParameters.jl)
+[![Coverage Status](https://coveralls.io/repos/andrewcooke/AutoTypeParameters.jl/badge.svg)](https://coveralls.io/r/andrewcooke/AutoTypeParameters.jl)
+
+[![AutoTypeParameters](http://pkg.julialang.org/badges/AutoTypeParameters_0.3.svg)](http://pkg.julialang.org/?pkg=AutoTypeParameters&ver=0.3)
+[![AutoTypeParameters](http://pkg.julialang.org/badges/AutoTypeParameters_0.4.svg)](http://pkg.julialang.org/?pkg=AutoTypeParameters&ver=0.4)
+[![AutoTypeParameters](http://pkg.julialang.org/badges/AutoTypeParameters_0.5.svg)](http://pkg.julialang.org/?pkg=AutoTypeParameters&ver=0.5)
 
 
 # AutoTypeParameters
